@@ -1,3 +1,4 @@
+"""Script which adds the second, minute and hour of the time"""
 # The below function doesn't work correctly. It should sum all the numbers at the
 # current time. For example, 01:02:03 should return 6. Improve and fix the function,
 # and write unit test(s) for it. Use any testing framework you're familiar with.
@@ -17,5 +18,4 @@ def sum_current_time(time_str: str) -> int:
     print("Invalid Time")
     return 0
 
-
-sum_current_time("-01:-02:-03")
+# Unit tests in the test_3_testing.py file

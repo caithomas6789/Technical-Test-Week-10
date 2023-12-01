@@ -69,58 +69,64 @@
 # - the dx_number (if available) of the nearest court of the right type
 # - the distance to the nearest court of the right type
 
-import requests
 import csv
+import requests
 
 URI = "https://courttribunalfinder.service.gov.uk/search/results.json?postcode="
 
 
 def get_people_data() -> list[dict]:
-    people = []
+    """Converts the people data from a csv file to a dictionary"""
+    people_list = []
+
     with open("people.csv", "r") as people_file:
         people_csv = csv.reader(people_file, delimiter=',')
         next(people_csv, None)
         for row in people_csv:
-            people.append(
+            people_list.append(
                 {'name': row[0], 'postcode': row[1], 'type_of_court': row[2]})
-        return people
+        return people_list
 
 
 def get_json_from_postcode(postcode: str) -> list[str]:
+    """Gets the json data using the find court API and the person's postcode"""
     response = requests.get(
         f"https://www.find-court-tribunal.service.gov.uk/search/results.json?postcode={postcode}")
 
     if response.status_code == 404:
-        print("Unable to find postcode info.")
+        return "Unable to find postcode info."
     if response.status_code == 500:
-        print("Unable to connect!")
+        return "Unable to connect!"
 
     return response.json()
 
 
-def get_court_data(person: dict) -> dict:
-    person['distance_to_court'] = 1000000
-    courts_data = get_json_from_postcode(person['postcode'])
+def get_court_data(person_dict: dict) -> dict:
+    """Retrieves the data about the person's closest required court"""
+    person_dict['distance_to_court'] = 1000000
+    courts_data = get_json_from_postcode(person_dict['postcode'])
+
     for court in courts_data:
-        if person['type_of_court'] in court['types'] and court['distance'] < person['distance_to_court']:
-            person['name_of_nearest_court'] = court['name']
-            person['court_dx_number'] = court['dx_number']
-            person['distance_to_court'] = court['distance']
+        if person_dict['type_of_court'] in court['types'] and court['distance'] < person_dict['distance_to_court']:
+            person_dict['name_of_nearest_court'] = court['name']
+            person_dict['court_dx_number'] = court['dx_number']
+            person_dict['distance_to_court'] = court['distance']
 
     if not person['court_dx_number']:
-        person['court_dx_number'] = "N/A"
+        person_dict['court_dx_number'] = "N/A"
 
-    return person
+    return person_dict
 
 
-def output_data(person: dict):
+def output_data(person_dict: dict):
+    """Outputs each person's required data"""
     print("-" * 10)
-    print(f"Name: {person['name']}")
-    print(f"Postcode: {person['postcode']}")
-    print(f"Type of Court: {person['type_of_court']}")
-    print(f"Name of Nearest Court: {person['name_of_nearest_court']}")
-    print(f"Dx number of Court: {person['court_dx_number']}")
-    print(f"Distance to Court: {person['distance_to_court']}km")
+    print(f"Name: {person_dict['name']}")
+    print(f"Postcode: {person_dict['postcode']}")
+    print(f"Type of Court: {person_dict['type_of_court']}")
+    print(f"Name of Nearest Court: {person_dict['name_of_nearest_court']}")
+    print(f"Dx number of Court: {person_dict['court_dx_number']}")
+    print(f"Distance to Court: {person_dict['distance_to_court']}km")
     print("\n")
 
 

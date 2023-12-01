@@ -1,3 +1,4 @@
+"""Script which cleans the logs and converts them into dictionaries"""
 # [TODO]: step 1
 # Update the is_log_line function below to skip lines that are not valid log lines.
 # Valid log lines have a timestamp, error type, and message. For example, lines 1, 3,
@@ -5,6 +6,10 @@
 # There's no perfect way to do this: just decide what you think is reasonable to get
 # the test to pass. The only thing you are not allowed to do is filter out log lines
 # based on the exact row numbers you want to remove.
+
+VALID_LOG_TYPES = ['INFO', "TRACE", "WARNING"]
+
+
 def is_log_line(line):
     """Takes a log line and returns True if it is a valid log line and returns nothing
     if it is not.
@@ -32,7 +37,8 @@ def get_dict(line):
     message = line[26:].strip()
 
     line_dict['timestamp'] = timestamp
-    line_dict['log_level'] = log_level
+    if log_level in VALID_LOG_TYPES:
+        line_dict['log_level'] = log_level
     line_dict['message'] = message
 
     return line_dict
